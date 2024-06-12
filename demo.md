@@ -23,3 +23,11 @@ compare -O0 and -O1,
 关于为什么在高优化级别下，汇编实现可能会出现错误的结果，这可能是因为编译器优化导致的内存顺序或其他未定义行为的问题。在多线程环境中，即使是原子指令，如果没有正确地使用内存屏障（memory barrier）来防止指令重排序，也可能会出现问题。
 
 为了确保汇编实现的正确性，可以在`lock xadd`指令后添加一个`mfence`指令，或者使用`volatile`关键字来防止编译器对这些指令进行优化。但是，通常更推荐使用`std::atomic`这类的高级抽象，因为它们会自动处理这些复杂的内存顺序问题，并且提供了跨平台的一致性。
+
+./aarch64-atomic.sh - lack some glibc files in v7
+
+getRaw-name-sh
+_ZNSt13__atomic_baseIiEppEv
+_Z N St 13__atomic_baseIi E pp Ev
+_ZNKSt13__atomic_baseIiEcviEv
+_Z N K St 13__atomic_baseIi E cv i Ev
