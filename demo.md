@@ -1,8 +1,46 @@
-./x86-atomic.sh
+# x86
+### ./x86-atomic.sh
 
+### Only std::atomic impl correct in every optimization flag
+
+### Briefly introduce -O diff  
 -Os Optimize the size of the code, first reduce the size of the executable file
 
-## Only std::atomic impl correct in every optimization flag
+### details of log/asm/x86
+src/x86-atomic.cpp  
+  
+
+### impl of Lock
+/slides/CMPXCHG.pdf  
+1. CPU out-of-order firing  
+need memory_order  
+
+2. cache consistency
+Haven't read it yet  
+MESI是“modified”, “exclusive”, “shared”, 和 “invalid”首字母的大写，当使用MESI 协议的时候，  
+cacheline可以处于这四个状态中的一个，因此除了物理地址和具体的数据之外，还需要为每一个cacheline设计一个2-bit的tag来标识该cacheline的状态  
+  
+
+
+### details of c++ std::atomic
+std::atomic default level is memory_order_seq_cst
+```c++
+      __int_type
+      operator++() volatile noexcept
+      { return __atomic_add_fetch(&_M_i, 1, int(memory_order_seq_cst)); }
+```
+  
+# arm
+### getRaw-name-sh
+log/atomic/armv8_ZNSt13__atomic_baseIiE.md  
+    
+_ZNSt13__atomic_baseIiEppEv  
+_Z N St 13__atomic_baseIi E pp Ev  
+_ZNKSt13__atomic_baseIiEcviEv  
+_Z N K St 13__atomic_baseIi E cv i Ev  
+
+
+
 
 compare -O0 and -O1, 
 在`-O0`优化级别下，编译器不会进行任何优化，会尽可能直接地将C++代码翻译为汇编指令。从你提供的`-O0`级别的`objdump`输出来看，我们可以看到`tAsmLockCnt`函数的汇编代码相比`-O1`输出有更多的指令和更多的步骤。
@@ -25,9 +63,3 @@ compare -O0 and -O1,
 为了确保汇编实现的正确性，可以在`lock xadd`指令后添加一个`mfence`指令，或者使用`volatile`关键字来防止编译器对这些指令进行优化。但是，通常更推荐使用`std::atomic`这类的高级抽象，因为它们会自动处理这些复杂的内存顺序问题，并且提供了跨平台的一致性。
 
 ./aarch64-atomic.sh - lack some glibc files in v7
-
-getRaw-name-sh
-_ZNSt13__atomic_baseIiEppEv
-_Z N St 13__atomic_baseIi E pp Ev
-_ZNKSt13__atomic_baseIiEcviEv
-_Z N K St 13__atomic_baseIi E cv i Ev

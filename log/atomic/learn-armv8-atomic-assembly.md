@@ -159,3 +159,67 @@ b70:	d65f03c0 	ret
 - `ret`：从函数返回。
 
 这段代码实现了`std::atomic<int>`的前缀递增操作符，它使用了专门的原子指令来确保操作的原子性，并正确地维护了函数的调用栈。
+
+# __aarch64_ldadd4_acq_rel
+
+这段汇编代码是ARMv8架构下的`__aarch64_ldadd4_acq_rel`函数的实现。这个函数执行一个原子的加载、加、存储（Load-Add-Store）操作。下面是逐行解释：
+
+```assembly
+bb0:	d503245f 	bti	c
+```
+- `bti c`：分支目标指令（Branch Target Instruction）。这是一种安全特性，用于防止跳转到错误的代码位置。`c`表示调用者（caller）。
+
+```assembly
+bb4:	d0000090 	adrp	x16, 12000 <__data_start>
+bb8:	39408610 	ldrb	w16, [x16, #33]
+```
+- 这两行加载`__data_start`地址偏移33字节处的一个字节到寄存器`w16`。这通常用于检查某些运行时条件。
+
+```assembly
+bbc:	34000070 	cbz	w16, bc8 <__aarch64_ldadd4_acq_rel+0x18>
+```
+- `cbz w16, bc8`：如果`w16`为0，则跳转到标签`bc8`。
+
+```assembly
+bc0:	b8e00020 	ldaddal	w0, w0, [x1]
+```
+- `ldaddal w0, w0, [x1]`：执行原子的加载和加法指令，将`w0`的值加到`x1`指向的内存地址中的值上，并将结果存回该内存地址。`ldaddal`指令包含获取和释放语义。
+
+```assembly
+bc4:	d65f03c0 	ret
+```
+- `ret`：从函数返回。
+
+如果`w16`为0，执行以下指令：
+
+```assembly
+bc8:	2a0003f0 	mov	w16, w0
+```
+- `mov w16, w0`：将`w0`的值复制到`w16`。
+
+```assembly
+bcc:	885ffc20 	ldaxr	w0, [x1]
+```
+- `ldaxr w0, [x1]`：执行原子的加载指令，具有获取语义，将`x1`指向的内存地址中的值加载到`w0`。
+
+```assembly
+bd0:	0b100011 	add	w17, w0, w16
+```
+- `add w17, w0, w16`：将`w0`和`w16`的值相加，结果存储到`w17`。
+
+```assembly
+bd4:	880ffc31 	stlxr	w15, w17, [x1]
+```
+- `stlxr w15, w17, [x1]`：执行原子的存储指令，具有释放语义，尝试将`w17`的值存储到`x1`指向的内存地址中。
+
+```assembly
+bd8:	35ffffaf 	cbnz	w15, bcc <__aarch64_ldadd4_acq_rel+0x1c>
+```
+- `cbnz w15, bcc`：如果`stlxr`指令未能成功存储（即`w15`不为0），则跳转回`bcc`重新尝试。
+
+```assembly
+bdc:	d65f03c0 	ret
+```
+- `ret`：从函数返回。
+
+这段代码是原子加法操作的实现，它使用了ARMv8的特殊原子指令来确保操作的原子性，并且包含了必要的内存屏障来保证内存操作的顺序。
