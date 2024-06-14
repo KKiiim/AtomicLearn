@@ -24,16 +24,15 @@ void tAsmLockCnt() {
     //     : list of clobbered registers      /* optional */
     //     );
 
-    asm volatile(
-        "lock xaddl %1, %0; mfence" // The 'l' suffix specifies that the
-                                    // operation is on a 32-bit integer.
-        : "=m"(asmLockCnt)          // Output operand: memory(m) location of
-                                    // 'asmLockCnt' will be writen(=).
-        : "r"(1),
-          "m"(asmLockCnt) // The C++ variable asmLocakCnt is linked to
-                          // %1 in the assembly instruction.
-        : "memory", "cc"  // Clobber list: flags that the memory and
-                          // condition codes may be modified.
+    asm volatile("lock xaddl %1, %0;" // The 'l' suffix specifies that the
+                                      // operation is on a 32-bit integer.
+                 : "=m"(asmLockCnt)   // Output operand: memory(m) location of
+                                      // 'asmLockCnt' will be writen(=).
+                 : "r"(1),
+                   "m"(asmLockCnt) // The C++ variable asmLocakCnt is linked to
+                                   // %1 in the assembly instruction.
+                 : "memory", "cc"  // Clobber list: flags that the memory and
+                                   // condition codes may be modified.
     );
   }
 }

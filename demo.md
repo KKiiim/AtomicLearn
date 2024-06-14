@@ -12,6 +12,13 @@ src/x86-atomic.cpp
 
 ### impl of Lock
 /slides/CMPXCHG.pdf  
+
+##compiler barrier/ optimize barrier
+src/barrier/complier-barrier.cpp
+compiler-barrier.asm
+compiler-barrier.sh
+
+
 1. CPU out-of-order firing  
 need memory_order  
 
@@ -19,6 +26,10 @@ need memory_order
 Haven't read it yet  
 MESI是“modified”, “exclusive”, “shared”, 和 “invalid”首字母的大写，当使用MESI 协议的时候，  
 cacheline可以处于这四个状态中的一个，因此除了物理地址和具体的数据之外，还需要为每一个cacheline设计一个2-bit的tag来标识该cacheline的状态  
+
+#### src/barrier/SMP-error.cpp
+ __asm__ __volatile__("mfence" ::: "memory");
+ Linux 内核实现的无锁（只有一个读线程和一个写线程时）环形缓冲区 kfifo 就使用到了 Memory barrier，实现源码如下：
   
 
 

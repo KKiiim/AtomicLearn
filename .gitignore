@@ -3,5 +3,6 @@
 !*.c
 !*.h
 
-a.out
+*.out
 *.log
+*.asm
